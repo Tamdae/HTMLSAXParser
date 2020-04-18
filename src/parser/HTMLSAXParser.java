@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,22 +22,23 @@ import java.util.regex.Pattern;
  * @author Usuario
  */
 public class HTMLSAXParser {
-    
+
     private ContentHandler contentHandler;
 
     public HTMLSAXParser(ContentHandler contentHandler) {
         if (contentHandler == null) {
             throw new NullPointerException("An ContentHandler Object is Required in order to process the html file");
         }
-        this.contentHandler=contentHandler;
+        this.contentHandler = contentHandler;
     }
-    
-    public void parse(String fileName){
+
+    public void parse(String fileName) {
         parse(new File(fileName));
     }
-    
-    public void parse(File file){
+
+    public void parse(File file) {
         String line;
+        StringBuilder content=new StringBuilder();
         ArrayList<String> html = new ArrayList<>();
         BufferedReader br = null;
         try {
@@ -47,20 +50,18 @@ public class HTMLSAXParser {
         Pattern tagClose = Pattern.compile("</?([\\w-]+)>");
         try {
             while ((line = br.readLine()) != null) {
+                content.append(line).append("\n");
                 line = line.replaceAll(">", ">#N#");
                 line = line.replaceAll("<", "#N#<");
                 String[] split = line.split("#N#");
                 for (String string : split) {
                     string = string.trim();
-                    Matcher matcher = tag.matcher(string);
-                    if (matcher.lookingAt()) {
-                        html.add(string);
-                    }
+                    html.add(string);
                 }
             }
         } catch (IOException ex) {
         }
-        
+
         try {
             contentHandler.startDocument();
         } catch (HTMLSAXException ex) {
@@ -102,6 +103,12 @@ public class HTMLSAXParser {
                                     }
                                 }
                             }
+                            /*
+                                procesamiento de atributos
+                            */
+                            else {
+                                
+                            }
                         }
                     }
                     if (id == null) {
@@ -117,6 +124,14 @@ public class HTMLSAXParser {
                     contentHandler.endElement(matcherTagClose.group(1));
                 } catch (HTMLSAXException ex) {
                 }
+            } else {
+                try {
+                    if (!string.isEmpty()) {
+                        String cont=content.toString();
+                        contentHandler.characters(cont.toCharArray(), cont.indexOf(string), string.length());
+                    }
+                } catch (HTMLSAXException ex) {
+                }
             }
         }
         try {
@@ -124,7 +139,5 @@ public class HTMLSAXParser {
         } catch (HTMLSAXException ex) {
         }
     }
-    
-    
-    
+
 }

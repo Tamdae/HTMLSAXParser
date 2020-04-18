@@ -10,9 +10,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.xml.sax.Attributes;
 import parser.Classes;
 import parser.ContentHandler;
@@ -59,7 +65,8 @@ public class Main {
 
         @Override
         public void characters(char[] ch, int start, int length) throws HTMLSAXException {
-
+            System.out.println("---tag content---");
+            System.out.println(String.valueOf(ch,start,length));
         }
     };
 
@@ -70,6 +77,9 @@ public class Main {
         File f = new File("index22.html");
         HTMLSAXParser parser = new HTMLSAXParser(contentHandler);
         parser.parse(f);
+       
     }
+
+    
 
 }
